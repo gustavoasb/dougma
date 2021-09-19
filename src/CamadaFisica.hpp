@@ -2,18 +2,18 @@
 
 void AplicacaoTransmissora();
 void CamadaDeAplicacaoTransmissora(std::string mensagem);
-void CamadaFisicaTransmissora(int quadro[]);
+void CamadaFisicaTransmissora(int quadro[], int size);
 
-int* CamadaFisicaTransmissoraCodificacaoBinaria(int quadro[]);
-int* CamadaFisicaTransmissoraCodificacaoManchester(int quadro[]);
-int* CamadaFisicaTransmissoraCodificacaoBipolar(int quadro[]);
+int* CamadaFisicaTransmissoraCodificacaoBinaria(int quadro[], int size);
+int* CamadaFisicaTransmissoraCodificacaoManchester(int quadro[], int size);
+int* CamadaFisicaTransmissoraCodificacaoBipolar(int quadro[], int size);
 
-void MeioDeComunicacao(int fluxoBrutoDeBits[]);
-void CamadaFisicaReceptora(int quadro[]);
+void MeioDeComunicacao(int fluxoBrutoDeBits[], int size, int multiplier);
+void CamadaFisicaReceptora(int quadro[], int size);
 
-int* CamadaFisicaReceptoraCodificacaoBinaria(int quadro[]);
-int* CamadaFisicaReceptoraCodificacaoManchester(int quadro[]);
-int* CamadaFisicaReceptoraCodificacaoBipolar(int quadro[]);
+int* CamadaFisicaReceptoraCodificacaoBinaria(int quadro[], int size);
+int* CamadaFisicaReceptoraCodificacaoManchester(int quadro[], int size);
+int* CamadaFisicaReceptoraCodificacaoBipolar(int quadro[], int size);
 
-void CamadaDeAplicacaoReceptora(int quadro[]);
+void CamadaDeAplicacaoReceptora(int quadro[], int size);
 void AplicacaoReceptora(std::string mensagem);
