@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <bitset>
+#include <stdlib.h> 
 #define DEBUG 0
 
 using namespace std;
@@ -149,9 +150,15 @@ void MeioDeComunicacao(int fluxoBrutoDeBits[], int size, int multiplier){
   int* fluxoBrutoDeBitsPontoB = (int*) malloc(4 * size * multiplier); /* or sizeof(int) */
 
   fluxoBrutoDeBitsPontoA = fluxoBrutoDeBits;
+
+  int porcentagemDeErros = 0; //10%, 20%, 30%, 40%, ..., 100%
   
   for(int i = 0; i < size * multiplier; i++){
+    if((rand()%100) >= porcentagemDeErros) //fazer a probabilidade de erro
     fluxoBrutoDeBitsPontoB[i] = fluxoBrutoDeBitsPontoA[i]; //BITS! Sendo transferidos
+    else { //ERRO! INVERTER (usa condicao ternaria)
+      fluxoBrutoDeBitsPontoA[i] = fluxoBrutoDeBitsPontoB[i] == 0 ? fluxoBrutoDeBitsPontoB[i]+1 : fluxoBrutoDeBitsPontoB[i]-1;
+    }
   }
 
   std::cout << "============================= " << std::endl;

@@ -38,6 +38,7 @@ void CamadaEnlaceDadosTransmissora(int quadro[], int size){
   std::cout << "CAMADA DE ENLACE TRANSMISSORA" << std::endl;
   int* quadroEnquadrado = (int*) malloc(4 * (size + 1));
   quadroEnquadrado = CamadaEnlaceDadosTransmissoraEnquadramento(quadro, size);
+  CamadaEnlaceDadosTransmissoraControleDeErro(quadroEnquadrado, size);  
 
   //proxima etapa do trabalho
 //   CamadaEnlaceDadosTransmissoraControleDeErro(quadro);
@@ -97,11 +98,21 @@ int* CamadaEnlaceDadosTransmissoraEnquadramentoInsercaoDeBytes(int quadro[], int
 } //fim do metodo CamadaEnlaceDadosTransmissoraInsercaoDeBytes
 
 
-void CamadaEnlaceDadosTransmissoraControleDeErro(int quadro[]){
-    //codigo aqui
+void CamadaEnlaceDadosTransmissoraControleDeErro(int quadro[], int size){
+  int tipoDeControleDeErro = 0; //alterar de acordo com teste
+
+  switch(tipoDeControleDeErro){
+    case 0: //bit de paridade par
+      CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(quadro, size);
+      break;
+    case 1: //CRC
+      CamadaEnlaceDadosTransmissoraControleDeErroCRC(quadro, size);
+      break;
+    default:
+      exit(1);
+      break;
+  }//fim do switch/case
 } //fim do metodo CamadaEnlaceDadosTransmissoraControleDeErro
-
-
 
 //receptora
 
@@ -115,6 +126,7 @@ void CamadaEnlaceDadosReceptora(int quadroEnquadrado[], int size){
   
   int* quadro = (int*) malloc(4 * (new_size));
   quadro = CamadaEnlaceDadosReceptoraEnquadramento(quadroEnquadrado, size); //enquadramento feito por contagem de caracteres
+  CamadaEnlaceDadosReceptoraControleDeErro(quadro, size);
 
   std::cout << "============================= " << std::endl;
   std::cout << "CAMADA DE ENLACE RECEPTORA " << std::endl;
@@ -123,9 +135,6 @@ void CamadaEnlaceDadosReceptora(int quadroEnquadrado[], int size){
     std::cout << quadro[i];
   }
   std::cout << std::endl;
-
-  //proxima etapa do trabalho
-//   CamadaEnlaceDadosReceptoraControleDeErro(quadro);
 
   //chama proxima camada
   CamadaDeAplicacaoReceptora(quadro, new_size);
@@ -201,6 +210,41 @@ int* CamadaEnlaceDadosReceptoraEnquadramentoInsercaoDeBytes(int quadroEnquadrado
   return quadro;
 } //fim do metodo CamadaEnlaceDadosReceptoraEnquadramentoInsercaoDeBytes
 
-void CamadaEnlaceDadosReceptoraControleDeErro(int quadro[]){
-    //codigo aqui
+void CamadaEnlaceDadosReceptoraControleDeErro(int quadro[], int size){
+  int tipoDeControleDeErro = 0; //alterar de acordo com teste
+
+  switch(tipoDeControleDeErro){
+    case 0: //bit de paridade par
+      CamadaEnlaceDadosReceptoraControleDeErroBitParidadePar(quadro, size);
+      break;
+    case 1: //CRC
+      // CamadaEnlaceDadosReceptoraControleDeErroCRC(quadro, size)
+      break;
+    default:
+      exit(1);
+      break;
+  }//fim do switch/case
 } //fim do metodo CamadaEnlaceDadosReceptoraControleDeErro
+
+int* CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(int quadro[], int size){
+  int* new_quadro = (int*) malloc(4 * (size+1));
+  for(int i = 0; i < size; i++){
+    new_quadro[i] = quadro[i];
+  }
+  new_quadro[size] = 0;
+  return new_quadro;
+} //fim do metodo CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar
+
+void CamadaEnlaceDadosTransmissoraControleDeErroCRC(int quadro[]){
+  //implementacao do algoritmo
+  //usar polinomio CRC-32(IEEE802)
+} //fim do metodo CamadaEnlaceDadosTransmissoraControleDeErroCRC
+
+void CamadaEnlaceDadosReceptoraControleDeErroBitParidadePar(int quadro[]){
+  //implementacao do algoritmo
+} //fim do metodo CamadaEnlaceDadosReceptoraControleDeErroBitParidadePar
+
+void CamadaEnlaceDadosReceptoraControleDeErroCRC(int quadro[]){
+  //implementacao do algoritmo
+  //usar polinomio CRC-32(IEEE802)
+} //fim do metodo CamadaEnlaceDadosReceptoraControleDeErroCRC
