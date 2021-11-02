@@ -1,5 +1,6 @@
 #include "CamadaFisica.hpp"
 #include "CamadaEnlace.hpp"
+#include "Helpers.hpp"
 #include <iostream>
 #include <string>
 #include <bitset>
@@ -11,8 +12,7 @@ using namespace std;
 int tipoDeCodificacao; //alterar de acordo com o teste
 
 void AplicacaoTransmissora(){
-  std::cout << "============================= " << std::endl;
-  std::cout << "CAMADA DE APLICACAO TRANSMISSORA" << std::endl;
+  PrintHeader("CAMADA DE APLICACAO TRANSMISSORA");
   string mensagem;
   cout << "Digite uma mensagem:" << endl;
   getline(cin, mensagem);
@@ -30,7 +30,10 @@ void CamadaDeAplicacaoTransmissora(std::string mensagem){
 
   // bitset to array of ints
   int size = mensagem.length();
-  int quadro[8 * size];
+  int quadro_size = size * 8;
+
+  int* quadro = (int*) malloc(4 * quadro_size);
+
   for(int i = 0, index = 0; i < size; ++i){
     for(int j = 0; j < 8; ++j){
       quadro[index++] = bits[i][7 - j];
@@ -38,22 +41,18 @@ void CamadaDeAplicacaoTransmissora(std::string mensagem){
     }
     if(DEBUG) cout << endl;
   }
-  int array_size = sizeof(quadro)/sizeof(quadro[0]);
   //trabalhar com bits!!!
 
-  std::cout << "Mensagem transmitida: ";
-  for(int i = 0; i < 8 * size; i++){
-    std::cout << quadro[i];
-  }
-  std::cout << std::endl;
+  PrintQuadro("Mensagem transmitida: ", quadro, quadro_size);
 
   //chama a camada de enlace
-  CamadaEnlaceDadosTransmissora(quadro, array_size);
+  CamadaEnlaceDadosTransmissora(quadro, quadro_size);
+
+  free(quadro);
 }//fim do CamadaDeAplicacaoTransmissora
 
-void CamadaFisicaTransmissora(int quadro[], int size){
-  std::cout << "============================= " << std::endl;
-  std::cout << "CAMADA FISICA TRANSMISSORA" << std::endl;
+void CamadaFisicaTransmissora(int quadro[], int& size){
+  PrintHeader("CAMADA FISICA TRANSMISSORA");
   int *fluxoBrutoDeBits; //ATENCAO: trabalhar com BITS!!!
   int multiplier = 1;
 
@@ -84,23 +83,20 @@ void CamadaFisicaTransmissora(int quadro[], int size){
       break;
   }//fim do switch/case
   
-  std::cout << "Mensagem codificada: ";
-  for(int i = 0; i < size; i++){
-    std::cout << fluxoBrutoDeBits[i];
-  }
-  std::cout << std::endl;
+  PrintQuadro("Mensagem codificada: ", fluxoBrutoDeBits, size);
 
-  MeioDeComunicacao(fluxoBrutoDeBits, size, multiplier);
+  MeioDeComunicacao(fluxoBrutoDeBits, size);
 }//fim do metodo CamadaFisicaTransmissora
 
-int* CamadaFisicaTransmissoraCodificacaoBinaria(int quadro[], int size){
+int* CamadaFisicaTransmissoraCodificacaoBinaria(int quadro[], int& size){
   //implementacao do algoritmo
   return quadro;
 }//fim do metodo CamadaFisicaTransmissoraCodificacaoBinaria
 
-int* CamadaFisicaTransmissoraCodificacaoManchester(int quadro[], int size){
+int* CamadaFisicaTransmissoraCodificacaoManchester(int quadro[], int& size){
   //implementacao do algoritmo
-  int* new_quadro = (int*) malloc(4 * size * 2); /* or sizeof(int) */
+  size = size*2;
+  int* new_quadro = (int*) malloc(4 * size); /* or sizeof(int) */
   if (quadro == NULL) {
     cout << "Cannot allocate memory";
     exit(1);
@@ -115,7 +111,7 @@ int* CamadaFisicaTransmissoraCodificacaoManchester(int quadro[], int size){
   return new_quadro;
 } //fim do metodo CamadaFisicaTransmissoraCodificacaoManchester
 
-int* CamadaFisicaTransmissoraCodificacaoBipolar(int quadro[], int size){
+int* CamadaFisicaTransmissoraCodificacaoBipolar(int quadro[], int& size){
   //implementacao do algoritmo
   int* new_quadro = (int*) malloc(4 * size); /* or sizeof(int) */
   if (quadro == NULL) {
@@ -136,35 +132,35 @@ int* CamadaFisicaTransmissoraCodificacaoBipolar(int quadro[], int size){
       flag = flag ? false : true; 
     }
     else new_quadro[i] = quadro[i];
-    
-    if (DEBUG) cout << new_quadro[i] << endl;
   }
   return new_quadro;
 }//fim do CamadaFisicaTransmissorCodificacaoBipolar
 
 /* Este metodo simula a transmissao da informacao no meio de comunicacao
 *  passando de um ponto A (transmissor) para um ponto B (receptor) */
-void MeioDeComunicacao(int fluxoBrutoDeBits[], int size, int multiplier){
+void MeioDeComunicacao(int fluxoBrutoDeBits[], int size){
   //OBS IMPORTANTE: trabalhar com BITS e nao com BYTES!!!
-  int* fluxoBrutoDeBitsPontoA = (int*) malloc(4 * size * multiplier); /* or sizeof(int) */
-  int* fluxoBrutoDeBitsPontoB = (int*) malloc(4 * size * multiplier); /* or sizeof(int) */
+  int* fluxoBrutoDeBitsPontoA = (int*) malloc(4 * size); /* or sizeof(int) */
+  int* fluxoBrutoDeBitsPontoB = (int*) malloc(4 * size); /* or sizeof(int) */
 
   fluxoBrutoDeBitsPontoA = fluxoBrutoDeBits;
 
   int porcentagemDeErros = 0; //10%, 20%, 30%, 40%, ..., 100%
   
-  for(int i = 0; i < size * multiplier; i++){
-    if((rand()%100) >= porcentagemDeErros) //fazer a probabilidade de erro
+  // for(int i = 0; i < size; i++){
+  //   if((rand()%100) >= porcentagemDeErros) //fazer a probabilidade de erro
+  //   fluxoBrutoDeBitsPontoB[i] = fluxoBrutoDeBitsPontoA[i]; //BITS! Sendo transferidos
+  //   else { //ERRO! INVERTER (usa condicao ternaria)
+  //     fluxoBrutoDeBitsPontoA[i] = fluxoBrutoDeBitsPontoB[i] == 0 ? fluxoBrutoDeBitsPontoB[i]+1 : fluxoBrutoDeBitsPontoB[i]-1;
+  //   }
+  // }
+
+  for(int i = 0; i < size; i++){
     fluxoBrutoDeBitsPontoB[i] = fluxoBrutoDeBitsPontoA[i]; //BITS! Sendo transferidos
-    else { //ERRO! INVERTER (usa condicao ternaria)
-      fluxoBrutoDeBitsPontoA[i] = fluxoBrutoDeBitsPontoB[i] == 0 ? fluxoBrutoDeBitsPontoB[i]+1 : fluxoBrutoDeBitsPontoB[i]-1;
-    }
   }
 
-  std::cout << "============================= " << std::endl;
-  std::cout << std::endl;
-  std::cout << "Transmissao da Informacao" << std::endl;
-  std::cout << std::endl;
+  PrintDivider();
+  std::cout << std::endl << "Transmissao da Informacao" << std::endl << std::endl;
   
   //chama proxima camada
   CamadaFisicaReceptora(fluxoBrutoDeBitsPontoB, size);
@@ -173,8 +169,7 @@ void MeioDeComunicacao(int fluxoBrutoDeBits[], int size, int multiplier){
 void CamadaFisicaReceptora(int quadro[], int size){
   int* fluxoBrutoDeBits; //ATENÇÃO: trabalhar com BITS!!!
 
-  std::cout << "============================= " << std::endl;
-  std::cout << "CAMADA FISICA RECEPTORA" << std::endl;
+  PrintHeader("CAMADA FISICA RECEPTORA");
 
   switch(tipoDeCodificacao-1){
     case 0: //codificacao binaria
@@ -188,11 +183,7 @@ void CamadaFisicaReceptora(int quadro[], int size){
       break;
   }//fim do switch/case
   
-  std::cout << "Mensagem decodificada: ";
-  for(int i = 0; i < size; i++){
-    std::cout << fluxoBrutoDeBits[i];
-  }
-  std::cout << std::endl;
+  PrintQuadro("Mensagem decodificada: ", fluxoBrutoDeBits, size);
   CamadaEnlaceDadosReceptora(fluxoBrutoDeBits, size);
 }// fim do metodo CamadaFisicaReceptora
 
@@ -253,10 +244,8 @@ void CamadaDeAplicacaoReceptora(int quadro[], int size){
     i++;
   }
   //chama proxima chamada
-  std::cout << "============================= " << std::endl;
-  std::cout << "CAMADA DE APLICACAO RECEPTORA " << std::endl;
-  std::cout << "Mensagem recebida: ";
-  std::cout << mensagem << std::endl << std::endl;
+  PrintHeader("CAMADA DE APLICACAO RECEPTORA ");
+  std::cout << "Mensagem recebida: " << mensagem << std::endl << std::endl;
   
   AplicacaoReceptora(mensagem);
 }//fim do metodo CamadaDeAplicacaoReceptora
