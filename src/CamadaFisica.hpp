@@ -12,11 +12,11 @@ int* CamadaFisicaTransmissoraCodificacaoManchester(int quadro[], int& size);
 int* CamadaFisicaTransmissoraCodificacaoBipolar(int quadro[], int& size);
 
 void MeioDeComunicacao(int fluxoBrutoDeBits[], int size);
-void CamadaFisicaReceptora(int quadro[], int size);
+void CamadaFisicaReceptora(int quadro[], int& size);
 
-int* CamadaFisicaReceptoraCodificacaoBinaria(int quadro[], int size);
-int* CamadaFisicaReceptoraCodificacaoManchester(int quadro[], int size);
-int* CamadaFisicaReceptoraCodificacaoBipolar(int quadro[], int size);
+int* CamadaFisicaReceptoraCodificacaoBinaria(int quadro[], int& size);
+int* CamadaFisicaReceptoraCodificacaoManchester(int quadro[], int& size);
+int* CamadaFisicaReceptoraCodificacaoBipolar(int quadro[], int& size);
 
 void CamadaDeAplicacaoReceptora(int quadro[], int size);
 void AplicacaoReceptora(std::string mensagem);

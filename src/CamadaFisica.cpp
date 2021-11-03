@@ -5,6 +5,7 @@
 #include <string>
 #include <bitset>
 #include <stdlib.h> 
+#include <time.h>       /* time */
 #define DEBUG 0
 
 using namespace std;
@@ -54,7 +55,6 @@ void CamadaDeAplicacaoTransmissora(std::string mensagem){
 void CamadaFisicaTransmissora(int quadro[], int& size){
   PrintHeader("CAMADA FISICA TRANSMISSORA");
   int *fluxoBrutoDeBits; //ATENCAO: trabalhar com BITS!!!
-  int multiplier = 1;
 
   cout << "Escolha um tipo de codificacao:" << endl;
   cout << "1 - Codificacao Binaria" << endl;
@@ -72,7 +72,6 @@ void CamadaFisicaTransmissora(int quadro[], int& size){
       break;
     case 1: //codificacao manchester
       fluxoBrutoDeBits = CamadaFisicaTransmissoraCodificacaoManchester(quadro, size);
-      multiplier = 2;
       break;
     case 2: //codificacao bipolar
       fluxoBrutoDeBits = CamadaFisicaTransmissoraCodificacaoBipolar(quadro, size);
@@ -95,12 +94,8 @@ int* CamadaFisicaTransmissoraCodificacaoBinaria(int quadro[], int& size){
 
 int* CamadaFisicaTransmissoraCodificacaoManchester(int quadro[], int& size){
   //implementacao do algoritmo
-  size = size*2;
-  int* new_quadro = (int*) malloc(4 * size); /* or sizeof(int) */
-  if (quadro == NULL) {
-    cout << "Cannot allocate memory";
-    exit(1);
-  }
+  int* new_quadro = (int*) malloc(4 * size * 2); /* or sizeof(int) */
+
   int j = 0;
   for(int i = 0; i < size; i++) {
     new_quadro[j] = quadro[i] ^ 0;
@@ -108,16 +103,18 @@ int* CamadaFisicaTransmissoraCodificacaoManchester(int quadro[], int& size){
     new_quadro[j] = quadro[i] ^ 1;
     j++;
   }
+
+  free(quadro);
+
+  size = size*2;
+
   return new_quadro;
 } //fim do metodo CamadaFisicaTransmissoraCodificacaoManchester
 
 int* CamadaFisicaTransmissoraCodificacaoBipolar(int quadro[], int& size){
   //implementacao do algoritmo
   int* new_quadro = (int*) malloc(4 * size); /* or sizeof(int) */
-  if (quadro == NULL) {
-    cout << "Cannot allocate memory";
-    exit(1);
-  }
+
   bool flag = true;
   for(int i = 0; i < size; i++) {
     if(quadro[i] == 0) {
@@ -133,6 +130,9 @@ int* CamadaFisicaTransmissoraCodificacaoBipolar(int quadro[], int& size){
     }
     else new_quadro[i] = quadro[i];
   }
+
+  free(quadro);
+  
   return new_quadro;
 }//fim do CamadaFisicaTransmissorCodificacaoBipolar
 
@@ -140,33 +140,36 @@ int* CamadaFisicaTransmissoraCodificacaoBipolar(int quadro[], int& size){
 *  passando de um ponto A (transmissor) para um ponto B (receptor) */
 void MeioDeComunicacao(int fluxoBrutoDeBits[], int size){
   //OBS IMPORTANTE: trabalhar com BITS e nao com BYTES!!!
-  int* fluxoBrutoDeBitsPontoA = (int*) malloc(4 * size); /* or sizeof(int) */
   int* fluxoBrutoDeBitsPontoB = (int*) malloc(4 * size); /* or sizeof(int) */
 
-  fluxoBrutoDeBitsPontoA = fluxoBrutoDeBits;
+  int* fluxoBrutoDeBitsPontoA = fluxoBrutoDeBits;
 
   int porcentagemDeErros = 0; //10%, 20%, 30%, 40%, ..., 100%
-  
-  // for(int i = 0; i < size; i++){
-  //   if((rand()%100) >= porcentagemDeErros) //fazer a probabilidade de erro
-  //   fluxoBrutoDeBitsPontoB[i] = fluxoBrutoDeBitsPontoA[i]; //BITS! Sendo transferidos
-  //   else { //ERRO! INVERTER (usa condicao ternaria)
-  //     fluxoBrutoDeBitsPontoA[i] = fluxoBrutoDeBitsPontoB[i] == 0 ? fluxoBrutoDeBitsPontoB[i]+1 : fluxoBrutoDeBitsPontoB[i]-1;
-  //   }
-  // }
 
+  srand(time(NULL));
+  
   for(int i = 0; i < size; i++){
-    fluxoBrutoDeBitsPontoB[i] = fluxoBrutoDeBitsPontoA[i]; //BITS! Sendo transferidos
+    if((rand()%100) >= (porcentagemDeErros/size)) //fazer a probabilidade de erro
+      fluxoBrutoDeBitsPontoB[i] = fluxoBrutoDeBitsPontoA[i]; //BITS! Sendo transferidos
+    else { //ERRO! INVERTER (usa condicao ternaria)
+      fluxoBrutoDeBitsPontoB[i] = fluxoBrutoDeBitsPontoA[i] == 0 ? fluxoBrutoDeBitsPontoA[i]+1 : fluxoBrutoDeBitsPontoA[i]-1;
+    }
   }
 
+  // for(int i = 0; i < size; i++){
+  //   fluxoBrutoDeBitsPontoB[i] = fluxoBrutoDeBitsPontoA[i]; //BITS! Sendo transferidos
+  // }
+
   PrintDivider();
-  std::cout << std::endl << "Transmissao da Informacao" << std::endl << std::endl;
+  std::cout << std::endl << "Transmissao da Informacao" << std::endl;
+  std::cout << "Chance de erro: " << porcentagemDeErros << "%" << std::endl << std::endl;
   
+  free(fluxoBrutoDeBits);
   //chama proxima camada
   CamadaFisicaReceptora(fluxoBrutoDeBitsPontoB, size);
 }//fim do metodo MeioDeComunicacao
 
-void CamadaFisicaReceptora(int quadro[], int size){
+void CamadaFisicaReceptora(int quadro[], int& size){
   int* fluxoBrutoDeBits; //ATENÇÃO: trabalhar com BITS!!!
 
   PrintHeader("CAMADA FISICA RECEPTORA");
@@ -187,32 +190,29 @@ void CamadaFisicaReceptora(int quadro[], int size){
   CamadaEnlaceDadosReceptora(fluxoBrutoDeBits, size);
 }// fim do metodo CamadaFisicaReceptora
 
-int* CamadaFisicaReceptoraCodificacaoBinaria(int quadro[], int size){
+int* CamadaFisicaReceptoraCodificacaoBinaria(int quadro[], int& size){
   //implementacao do algoritmo para decodificar
   return quadro;
 }//fim do metodo CamadaFisicaReceptoraCodificacaoBinaria
 
-int* CamadaFisicaReceptoraCodificacaoManchester(int quadro[], int size){
+int* CamadaFisicaReceptoraCodificacaoManchester(int quadro[], int& size){
   //implementacao do algoritmo para decodificar
-  int* new_quadro = (int*) malloc(4 * size); /* or sizeof(int) */
-  if (quadro == NULL) {
-    cout << "Cannot allocate memory";
-    exit(1);
-  }
+  int* new_quadro = (int*) malloc(4 * int(size/2)); /* or sizeof(int) */
+
   int j = 0;
-  for(int i = 0; i < size*2; i+=2, j++) {
+  for(int i = 0; i < size; i+=2, j++) {
     new_quadro[j] = quadro[i] ^ 0;
   }
+
+  free(quadro);
+  size = (int)size/2;
   return new_quadro;
 }//fim do metodo CamadaFisicaReceptoraCodificacaoManchester
 
-int* CamadaFisicaReceptoraCodificacaoBipolar(int quadro[], int size){
+int* CamadaFisicaReceptoraCodificacaoBipolar(int quadro[], int& size){
   //implementacao do algoritmo para decodificar
   int* new_quadro = (int*) malloc(4 * size); /* or sizeof(int) */
-  if (quadro == NULL) {
-    cout << "Cannot allocate memory";
-    exit(1);
-  }
+
   for(int i = 0; i < size; i++) {
     if(quadro[i] == 0) {
       new_quadro[i] = 0;
@@ -221,8 +221,10 @@ int* CamadaFisicaReceptoraCodificacaoBipolar(int quadro[], int size){
       new_quadro[i] = 1;
     }
     else new_quadro[i] = quadro[i];
-    // if(DEBUG) cout << new_quadro[i] << endl;
   }
+
+  free(quadro);
+
   return new_quadro;
 }//fim do metodo CamadaFisicaReceptoraCodificacaoBipolar
 

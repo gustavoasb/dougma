@@ -10,6 +10,7 @@ int* CamadaEnlaceDadosTransmissoraEnquadramentoInsercaoDeBytes(int quadro [], in
 int* CamadaEnlaceDadosTransmissoraControleDeErro(int quadro [], int& size);
 int* CamadaEnlaceDadosTransmissoraControleDeErroBitParidadePar(int quadro[], int& size);
 int* CamadaEnlaceDadosTransmissoraControleDeErroCRC(int quadro[], int& size);
+int* CamadaEnlaceDadosTransmissoraControleDeErroCodigoDeHamming(int quadro[], int& size);
 
 void CamadaEnlaceDadosReceptora(int quadroEnquadrado [], int size);
 
@@ -19,6 +20,7 @@ int* CamadaEnlaceDadosReceptoraEnquadramentoInsercaoDeBytes(int quadroEnquadrado
 
 int* CamadaEnlaceDadosReceptoraControleDeErro(int quadro [], int& size);
 int* CamadaEnlaceDadosReceptoraControleDeErroBitParidadePar(int quadro[], int& size);
-int*  CamadaEnlaceDadosReceptoraControleDeErroCRC(int quadro[], int& size);
+int* CamadaEnlaceDadosReceptoraControleDeErroCRC(int quadro[], int& size);
+int* CamadaEnlaceDadosReceptoraControleDeErroCodigoDeHamming(int quadro[], int& size);
 
 #endif
