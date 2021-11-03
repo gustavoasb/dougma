@@ -144,7 +144,7 @@ void MeioDeComunicacao(int fluxoBrutoDeBits[], int size){
 
   int* fluxoBrutoDeBitsPontoA = fluxoBrutoDeBits;
 
-  int porcentagemDeErros = 0; //10%, 20%, 30%, 40%, ..., 100%
+  int porcentagemDeErros = 50; //10%, 20%, 30%, 40%, ..., 100%
 
   srand(time(NULL));
   
