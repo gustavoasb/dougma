@@ -8,11 +8,11 @@ Mayara Chew Marinho 18/0025210
 Para compilar use
 
 ```sh
-g++ src/*.cpp -o simulador
+g++ src/*.cpp -o simulador ou make
 ```
 
 e execute com
 
 ```sh
-./simulador
+./build/simulador
 ```
